@@ -4,277 +4,627 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sjekkliste netthandel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        /* Generelle farger for lys og mørk modus */
+        body[data-bs-theme="light"] {
+            background-color: #f8f9fa;
+            color: #212529;
         }
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-        }
-        input {
-            margin-bottom: 10px;
-            padding: 5px;
-            width: 50%;
-        }
-        button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
+        body[data-bs-theme="dark"] {
+            background-color: #121212;
+            color: #ffffff;
         }
 
-        /* Styling for menyen */
-        .menu {
-            position: fixed;
-            top: 0;
-            right: 0;
-            padding: 10px;
+        /* Navbar */
+        .navbar {
+            background-color: #007bff !important;
         }
-        .menu a {
-            color: #0000EE;
-            text-decoration: underline;
-            padding: 10px;
-            margin-left: 10px;
-            font-size: 16px;
+        .navbar .nav-link, .navbar .navbar-brand {
+            color: white !important;
         }
-        .menu a:hover {
-            font-weight: bold;
-            border-radius: 5px;
+
+        /* Kort og tabeller */
+        .card, .table {
+            background-color: var(--bs-body-bg);
+            color: var(--bs-body-color);
+        }
+        [data-bs-theme="dark"] .card {
+            background-color: #222 !important;
+            color: #f8f9fa !important;
+        }
+        [data-bs-theme="dark"] .card-header {
+            background-color: #333 !important;
+            color: #f8f9fa !important;
+        }
+
+        /* Sjekkbokser og etiketter */
+        [data-bs-theme="dark"] .form-check-input {
+            background-color: #555 !important;
+            border-color: #888 !important;
+        }
+        [data-bs-theme="dark"] .form-check-label {
+            color: #f8f9fa !important;
+        }
+        [data-bs-theme="dark"] .form-check-input:checked {
+            background-color: #007bff !important;
+            border-color: #007bff !important;
+        }
+
+        /* Lenker */
+        [data-bs-theme="dark"] a {
+            color: #00bfff !important;
+        }
+        [data-bs-theme="dark"] a:hover {
+            color: #66ccff !important;
+        }
+
+        /* Input-felt */
+        [data-bs-theme="dark"] .input-group, 
+        [data-bs-theme="dark"] .form-control {
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #555;
+        }
+        [data-bs-theme="dark"] .form-control:focus {
+            background-color: #555;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        /* Knappestiler */
+        [data-bs-theme="dark"] .btn-outline-dark {
+            color: #fff;
+            border-color: #007bff;
+            background-color: #222;
+        }
+        [data-bs-theme="dark"] .btn-outline-dark:hover {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+
+        /* Tabell-header */
+        [data-bs-theme="dark"] .table thead {
+            background-color: #333;
+            color: #fff;
+        }
+        [data-bs-theme="light"] .table thead {
+            background-color: #f8f9fa;
+            color: #212529;
+        }
+        [data-bs-theme="dark"] .table tbody tr {
+            background-color: #222;
+        }
+
+        /* Alfabet-knapper */
+        .alphabet-buttons button {
+            padding: 5px;
+            margin: 1px;
+            width: 30px;
+            height: 30px;
+            text-align: center;
+            display: inline-block;
+            font-size: 12px;
         }
     </style>
 </head>
-<body>
+<body data-bs-theme="light">
 
-  <!-- Menyen øverst i høyre hjørne -->
-  <div class="menu">
-    <a href="https://www.klarna.com/no/" target="_blank">Klarna</a>
-    <a href="https://www.prisjakt.no/" target="_blank">Prisjakt</a>
-    <a href="https://trumfnetthandel.no/" target="_blank">Trumf</a>
-    <a href="https://onlineshopping.flysas.com/nb-NO/" target="_blank">SAS</a>
-    <a href="https://studentkortet.no/rabatter" target="_blank">Studentkortet</a>
-  </div>
+    <div class="container mt-3 d-flex justify-content-end gap-3">
+        <!-- SAS-modus toggle -->
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="sasModeSwitch" checked onchange="togglesasMode()">
+            <label class="form-check-label" for="sasModeSwitch">SAS EB-modus</label>
+         </div>
+        <!-- Student-modus toggle -->
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="studentModeSwitch" checked onchange="toggleStudentMode()">
+            <label class="form-check-label" for="studentModeSwitch">Student-modus</label>
+         </div>
+        <!-- Mørk-modus toggle -->
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="darkModeSwitch" onchange="toggleDarkMode()">
+            <label class="form-check-label" for="darkModeSwitch">Mørk-modus</label>
+        </div>
+    </div>
+    
 
-<h2>Søk i tabell</h2>
-<input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Søk etter butikk eller verdi..">
-<button onclick="downloadCSV()">Last ned CSV</button>
+    <!-- Container for hovedinnholdet -->
+    <div class="container mt-4">
+        <!-- Sjekkliste -->
+        <div class="card">
+            <div class="card-header">
+                <h4>Sjekkliste før du kjøper på nett</h4>
+            </div>
+            <div class="card-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="checkPrisjakt">
+                    <label class="form-check-label" for="checkPrisjakt">
+                        Sammenligne priser på <a href="https://www.prisjakt.no" target="_blank">Prisjakt</a> eller 
+                        <a href="https://www.klarna.com/no/" target="_blank">Klarna</a>
+                    </label>
+                </div>
 
-<table id="csvTable">
-    <thead>
-        <tr>
-            <th>Butikk</th>
-            <th>Trumf Netthandel</th>
-            <th>SAS Netthandel</th>
-            <th>Studentkortet</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Data vil lastes inn her -->
-    </tbody>
-</table>
+                <!-- Student-delen får en egen ID -->
+                <div id="studentSjekkliste">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="checkStudentrabatt">
+                        <label class="form-check-label" for="checkStudentrabatt">
+                            Bruk tabellen og se om du kan få studenttilbud på  
+                            <a href="https://studentkortet.no/rabatter" target="_blank">Studentkortet</a> eller  
+                            <a href="https://studenttorget.no/studentrabatter/" target="_blank">Studenttorget</a>, se også 
+                            <a href="https://www.utdanningibergen.no/studentrabatter/" target="_blank">Utdanning i Bergen</a>,  
+                            eller <a href="https://www.studentpakken.no/studentrabatter" target="_blank">Studentpakken</a>
+                        </label>
+                    </div>
+                </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
-<script>
-    let trumfData = [];
-    let sasData = [];
-    let studentkortetData = [];
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="checkBonus">
+                    <label class="form-check-label" for="checkBonus">
+                        Bruk tabellen og se om du kan få bonus gjennom 
+                        <a href="https://trumfnetthandel.no/" target="_blank">Trumf</a> <span id="sasSjekkliste">eller  
+                        <a href="https://onlineshopping.flysas.com/nb-NO/" target="_blank">SAS</a></span>
+                    </label>
+                </div>
+            </div>
+        </div>
 
-    // Funksjon for å laste inn CSV-data
-    function loadCSV() {
-        // Last inn Trumf CSV
-        Papa.parse("./trumf.csv", { // Anta at filen heter trumf.csv
-            download: true,
-            header: true,
-            complete: function(results) {
-                trumfData = results.data;
-                mergeData(); // Kall for å slå sammen etter at Trumf-data er lastet
-            },
-            error: function(err) {
-                console.error("Feil ved lasting av Trumf CSV:", err);
-            }
-        });
+        <!-- Søketabell -->
+        <div class="card mt-3">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h4>Søk i tabell</h4>
+                <!-- Filtermeny -->
+                <button class="btn btn-outline-dark" data-bs-toggle="modal" data-bs-target="#filterModal">
+                    ⚙️ Filtrer
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="input-group mb-3">
+                    <input type="text" id="searchInput" onkeyup="searchTable()" class="form-control" placeholder="Søk etter butikk eller verdi..">
+                    <button onclick="downloadCSV()" class="btn btn-outline-dark">📥 Last ned CSV</button>
+                </div>                
 
-        // Last inn SAS CSV
-        Papa.parse("./sas.csv", { // Anta at filen heter sas.csv
-            download: true,
-            header: true,
-            complete: function(results) {
-                sasData = results.data;
-                mergeData(); // Kall for å slå sammen etter at SAS-data er lastet
-            },
-            error: function(err) {
-                console.error("Feil ved lasting av SAS CSV:", err);
-            }
-        });
+                <table class="table table-striped table-bordered" id="csvTable">
+                    <thead>
+                        <tr>
+                            <th>Butikk</th>
+                            <th>Trumf Netthandel</th>
+                            <th>SAS Netthandel</th>
+                            <th>Studentkortet</th>
+                            <th>Studenttorget</th>
+                            <th>Zupergift</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data vil lastes inn her -->
+                    </tbody>
+                </table>
+            <!-- Alfabet pagination -->
+            <div class="alphabet-buttons" id="alphabet-buttons"></div>
 
-        // Last inn Studentkortet CSV
-        Papa.parse("./studentkortet.csv", { // Anta at filen heter studentkortet.csv
-            download: true,
-            header: true,
-            complete: function(results) {
-                studentkortetData = results.data;
-                mergeData(); // Kall for å slå sammen etter at Studentkortet-data er lastet
-            },
-            error: function(err) {
-                console.error("Feil ved lasting av Studentkortet CSV:", err);
-            }
-        });
-    }
+            </div>
+        </div>        
+    </div>
 
-    // Funksjon for å slå sammen dataene fra alle CSV-filene
-    function mergeData() {
-        if (trumfData.length === 0 || sasData.length === 0 || studentkortetData.length === 0) return; // Ikke slå sammen før alle er lastet
+    <!-- Modal for filtrering -->
+    <div class="modal fade" id="filterModal" tabindex="-1" aria-labelledby="filterModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="filterModalLabel">Filtrer tilbud</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Lukk"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Velg hvilke kategori man vil vise for</p>
+                    <div class="form-check">
+                        <input class="form-check-input filter-checkbox" type="checkbox" id="filterTrumf" checked>
+                        <label class="form-check-label" for="filterTrumf">Trumf Netthandel</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input filter-checkbox" type="checkbox" id="filterSAS" checked>
+                        <label class="form-check-label" for="filterSAS">SAS Netthandel</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input filter-checkbox" type="checkbox" id="filterStudentkortet" checked>
+                        <label class="form-check-label" for="filterStudentkortet">Studentkortet</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input filter-checkbox" type="checkbox" id="filterStudenttorget" checked>
+                        <label class="form-check-label" for="filterStudenttorget">Studenttorget</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input filter-checkbox" type="checkbox" id="filterZupergift" checked>
+                        <label class="form-check-label" for="filterZupergift">Zupergift</label>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" onclick="searchTable()" data-bs-dismiss="modal">Oppdater tabell</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+
+    <!-- Bootstrap JS og PapaParse -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let trumfData = [];
+        let sasData = [];
+        let studentkortetData = [];
+        let studenttorgetData = [];
+        let zupergiftData = [];
         let combinedData = [];
+                
+        // Variabler for siste oppdateringsdatoer
+        let lastUpdatedTrumf = null;
+        let lastUpdatedSas = null;
+        let lastUpdatedStudentkortet = null;
+        let lastUpdatedStudenttorget = null;
+        let lastUpdatedZupergift = null;
 
-        // Slå sammen dataene ved å bruke butikkens navn
-        trumfData.forEach(function(trumfRow) {
-            if (!trumfRow['Butikk']) return; // Ignorer rader uten butikkens navn
-            
-            let sasRow = sasData.find(sasRow => sasRow['Butikk'] === trumfRow['Butikk']);
-            let studentkortetRow = studentkortetData.find(studentRow => studentRow['Butikk'] === trumfRow['Butikk']);
-            
-            let newRow = {
-                'Butikk': createLinkForStore(trumfRow, sasRow, studentkortetRow),
-                'Trumf Netthandel': trumfRow['Bonus'],
-                'Sas Netthandel': sasRow ? sasRow['Bonus'] : '',
-                'Studentkortet': studentkortetRow ? studentkortetRow['Bonus'] : ''
-            };
+        const csvSources = [
+            { url: "./trumf.csv", name: "Trumf Netthandel", label: "filterTrumf" },
+            { url: "./sas.csv", name: "SAS Netthandel", label: "filterSAS" },
+            { url: "./studentkortet.csv", name: "Studentkortet", label: "filterStudentkortet" },
+            { url: "./studenttorget.csv", name: "Studenttorget", label: "filterStudenttorget" },
+            { url: "./zupergift.csv", name: "Zupergift", label: "filterZupergift" }
+        ];
 
-            combinedData.push(newRow);
-            
-            // Fjern SAS og Studentkortet-raden fra deres respektive data hvis de er blitt kombinert
-            if (sasRow) {
-                sasData = sasData.filter(row => row['Butikk'] !== sasRow['Butikk']);
+        function getLastModified() {
+            csvSources.forEach(source => {
+                fetch(source.url, { method: 'HEAD' })
+                    .then(response => {
+                        let lastModified = response.headers.get("Last-Modified");
+                        if (lastModified) {
+                            let date = new Date(lastModified);
+                            let formattedDate = `${date.getDate()}. ${date.toLocaleString('no-NO', { month: 'short' })}`;
+                            document.querySelector(`label[for="${source.label}"]`).textContent = `${source.name} (sist oppdatert: ${formattedDate})`;
+                        }
+                    })
+                    .catch(err => console.error(`Feil ved henting av ${source.name}:`, err));
+            });
+        }
+        getLastModified();
+
+
+        // Funksjon for å laste inn CSV-data
+        function loadCSV() {
+            csvSources.forEach(source => {
+                Papa.parse(source.url, {
+                    download: true,
+                    header: true,
+                    skipEmptyLines: true,
+                    complete: function(results) {
+                        switch (source.name) {
+                            case "Trumf Netthandel": trumfData = results.data; break;
+                            case "SAS Netthandel": sasData = results.data; break;
+                            case "Studentkortet": studentkortetData = results.data; break;
+                            case "Studenttorget": studenttorgetData = results.data; break;
+                            case "Zupergift": zupergiftData = results.data; break;
+                        }
+                        checkAndMergeData();
+                    },
+                    error: function(err) {
+                        console.error(`Feil ved lasting av ${source.name} CSV:`, err);
+                    }
+                });
+            });
+        }
+
+        function checkAndMergeData() {
+            if ([trumfData, sasData, studentkortetData, studenttorgetData, zupergiftData].every(data => data !== null)) {
+                mergeData();
+                renderTable(combinedData);
             }
-            if (studentkortetRow) {
-                studentkortetData = studentkortetData.filter(row => row['Butikk'] !== studentkortetRow['Butikk']);
+        }
+        function mergeData() {
+            if (![trumfData, sasData, studentkortetData, studenttorgetData, zupergiftData].every(arr => arr.length > 0)) return;
+
+            combinedData = [];
+            let storeMap = {};
+
+            function normalize(name) {
+                return name ? name.replace(/\s+/g, '').toLowerCase() : '';
             }
-        });
 
-        // Legg til butikker som kun finnes i SAS eller Studentkortet (de som ikke er blitt kombinert med TRUMF)
-        sasData.forEach(function(sasRow) {
-            if (!sasRow['Butikk']) return; // Ignorer rader uten butikkens navn
+            function addToMap(sourceArray, sourceName) {
+                sourceArray.forEach(row => {
+                    if (!row['Butikk']) return;
+                    let key = normalize(row['Butikk']);
+
+                    if (!storeMap[key]) {
+                        storeMap[key] = { 'Butikk': null, 'Trumf Netthandel': '', 'Sas Netthandel': '', 'Studentkortet': '', 'Studenttorget': '', 'Zupergift': '' };
+                    }
+
+                    storeMap[key][sourceName] = row['Bonus'] ?? '';
+
+                    // Hent eksisterende verdier, slik at vi IKKE overstyrer tidligere lenker
+                    let existingTrumf = storeMap[key]['Trumf Netthandel'] ? storeMap[key] : null;
+                    let existingSas = storeMap[key]['Sas Netthandel'] ? storeMap[key] : null;
+                    let existingStudentkortet = storeMap[key]['Studentkortet'] ? storeMap[key] : null;
+                    let existingStudenttorget = storeMap[key]['Studenttorget'] ? storeMap[key] : null;
+                    let existingZupergift = storeMap[key]['Zupergift'] ? storeMap[key] : null;
+
+                    // Oppdater "Butikk"-kolonnen med ALLE lenker
+                    storeMap[key]['Butikk'] = createLinkForStore(
+                        sourceName === 'Trumf Netthandel' ? row : existingTrumf,
+                        sourceName === 'Sas Netthandel' ? row : existingSas,
+                        sourceName === 'Studentkortet' ? row : existingStudentkortet,
+                        sourceName === 'Studenttorget' ? row : existingStudenttorget,
+                        sourceName === 'Zupergift' ? row : existingZupergift
+                    );
+                });
+            }
+
+            addToMap(trumfData, 'Trumf Netthandel');
+            addToMap(sasData, 'Sas Netthandel');
+            addToMap(studentkortetData, 'Studentkortet');
+            addToMap(studenttorgetData, 'Studenttorget');
+            addToMap(zupergiftData, 'Zupergift');
+
+            combinedData = Object.values(storeMap);
+            combinedData.sort((a, b) => a['Butikk'].localeCompare(b['Butikk']));
+
+            filterByLetter('A');
+        }
             
-            let newRow = {
-                'Butikk': createLinkForStore(null, sasRow, null),
-                'Trumf Netthandel': '',
-                'Sas Netthandel': sasRow['Bonus'],
-                'Studentkortet': ''
-            };
-            combinedData.push(newRow);
-        });
+        function createLinkForStore(trumfRow, sasRow, studentkortetRow, studenttorgetRow, zupergiftRow) {            
+            let storeName = trumfRow?.['Butikk'] || sasRow?.['Butikk'] || studentkortetRow?.['Butikk'] || studenttorgetRow?.['Butikk'] || zupergiftRow?.['Butikk'] || 'Ukjent butikk';
 
-        studentkortetData.forEach(function(studentkortetRow) {
-            if (!studentkortetRow['Butikk']) return; // Ignorer rader uten butikkens navn
+            let links = [];
+
+            if (trumfRow && trumfRow['Link']) links.push(`<a href="${trumfRow['Link']}" target="_blank">[Trumf]</a>`);
+            if (sasRow && sasRow['Link']) links.push(`<a href="${sasRow['Link']}" target="_blank">[SAS]</a>`);
+            if (studentkortetRow && studentkortetRow['Link']) links.push(`<a href="${studentkortetRow['Link']}" target="_blank">[Studentkortet]</a>`);
+            if (studenttorgetRow && studenttorgetRow['Link']) links.push(`<a href="${studenttorgetRow['Link']}" target="_blank">[Studenttorget]</a>`);
+            if (zupergiftRow && zupergiftRow['Link']) links.push(`<a href="${zupergiftRow['Link']}" target="_blank">[Zupergift]</a>`);
+
+            return `${storeName} ${links.join(" ")}`;
+        }
+
+
+        function filterByLetter(letter) {
+            let table = document.getElementById("csvTable").getElementsByTagName("tbody")[0];
+            let input = document.getElementById("searchInput").value.toLowerCase();
             
-            let newRow = {
-                'Butikk': createLinkForStore(null, null, studentkortetRow),
-                'Trumf Netthandel': '',
-                'Sas Netthandel': '',
-                'Studentkortet': studentkortetRow['Bonus']
-            };
-            combinedData.push(newRow);
-        });
+            table.innerHTML = ""; // Tøm tabellen
 
-        // Sorter dataene alfabetisk etter butikkens navn
-        combinedData.sort(function(a, b) {
-            let nameA = a['Butikk'].toUpperCase(); // Konverter navn til store bokstaver for å sikre korrekt alfabetisk rekkefølge
-            let nameB = b['Butikk'].toUpperCase();
-            if (nameA < nameB) return -1;
-            if (nameA > nameB) return 1;
-            return 0;
-        });
-
-        // Sett inn dataene i tabellen
-        renderTable(combinedData);
-    }
-
-    // Funksjon for å lage lenke for butikkens navn
-    function createLinkForStore(trumfRow, sasRow, studentkortetRow) {
-        let storeName = trumfRow ? trumfRow['Butikk'] : sasRow ? sasRow['Butikk'] : studentkortetRow['Butikk']; // Bruk butikkens navn fra en av radene
-
-        let linkContent = storeName; // Start med butikkens navn
-
-        if (trumfRow && trumfRow['Link']) {
-            linkContent += ` <a href="${trumfRow['Link']}" target="_blank">[Trumf]</a>`; // Legg til TRUMF-lenke
-        }
-
-        if (sasRow && sasRow['Link']) {
-            linkContent += ` <a href="${sasRow['Link']}" target="_blank">[SAS]</a>`; // Legg til SAS-lenke
-        }
-
-        if (studentkortetRow && studentkortetRow['Link']) {
-            linkContent += ` <a href="${studentkortetRow['Link']}" target="_blank">[Studentkortet]</a>`; // Legg til Studentkortet-lenke
-        }
-
-        return linkContent;
-    }
-
-    // Funksjon for å rendere tabellen
-    function renderTable(data) {
-        var table = document.getElementById("csvTable").getElementsByTagName("tbody")[0];
-        table.innerHTML = ''; // Tøm tabellen før ny rendering
-
-        // Legg til radene i tabellen
-        data.forEach(function(row) {
-            var newRow = table.insertRow();
-            newRow.insertCell(0).innerHTML = row['Butikk'];
-            newRow.insertCell(1).textContent = row['Trumf Netthandel'];
-            newRow.insertCell(2).textContent = row['Sas Netthandel'];
-            newRow.insertCell(3).textContent = row['Studentkortet'];
-        });
-    }
-
-    // Funksjon for å søke i tabellen
-    function searchTable() {
-        var input = document.getElementById("searchInput").value.toUpperCase();
-        var table = document.getElementById("csvTable");
-        var rows = table.getElementsByTagName("tr");
-
-        for (var i = 1; i < rows.length; i++) {
-            var cells = rows[i].getElementsByTagName("td");
-            var match = false;
-            for (var j = 0; j < cells.length; j++) {
-                if (cells[j].textContent.toUpperCase().indexOf(input) > -1) {
-                    match = true;
-                    break;
+            combinedData.forEach(row => {
+                let butikkNavn = row['Butikk'].toLowerCase();
+                
+                if ((butikkNavn.startsWith(letter.toLowerCase()) || letter === "") &&
+                    (butikkNavn.includes(input) || input === "")) {
+                    let newRow = table.insertRow();
+                    newRow.innerHTML = `<td>${row['Butikk']}</td>
+                                        <td>${row['Trumf Netthandel']}</td>
+                                        <td>${row['Sas Netthandel']}</td>
+                                        <td>${row['Studentkortet']}</td>
+                                        <td>${row['Studenttorget']}</td>`;
                 }
-            }
-            rows[i].style.display = match ? "" : "none";
+            });
         }
-    }
 
-    // Funksjon for å laste ned tabellen som CSV-fil
-    function downloadCSV() {
-        var table = document.getElementById("csvTable");
-        var rows = Array.from(table.querySelectorAll("tr"));
-        var csvContent = rows.map(function(row) {
-            return Array.from(row.querySelectorAll("th, td")).map(function(cell) {
-                return cell.textContent;
-            }).join(",");
-        }).join("\n");
+        function renderTable(data) {
+            let table = document.getElementById("csvTable").getElementsByTagName("tbody")[0];
+            table.innerHTML = '';
 
-        var blob = new Blob([csvContent], { type: 'text/csv' });
-        var link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'table_data.csv';
-        link.click();
-    }
+            data.forEach(function(row) {
+                let newRow = table.insertRow();
+                newRow.insertCell(0).innerHTML = row['Butikk'];
+                newRow.insertCell(1).textContent = row['Trumf Netthandel'];
+                newRow.insertCell(2).textContent = row['Sas Netthandel'];
+                newRow.insertCell(3).textContent = row['Studentkortet'];
+                newRow.insertCell(4).textContent = row['Studenttorget'];
+                newRow.insertCell(5).textContent = row['Zupergift'];
+            });
+        }
 
-    // Last inn CSV-dataene når siden åpnes
-    loadCSV();
-</script>
+        // Funksjon for å søke i tabellen
+        function searchTable() {
+            let input = document.getElementById("searchInput").value.toLowerCase();
+            let filterTrumf = document.getElementById("filterTrumf").checked;
+            let filterSAS = document.getElementById("filterSAS").checked;
+            let filterStudentkortet = document.getElementById("filterStudentkortet").checked;
+            let filterStudenttorget = document.getElementById("filterStudenttorget").checked;
+            let filterZupergift = document.getElementById("filterZupergift").checked;
 
+
+            let table = document.getElementById("csvTable");
+            let tbody = table.getElementsByTagName("tbody")[0];
+            let thead = table.getElementsByTagName("thead")[0];
+            tbody.innerHTML = ""; // Tøm tabellen før søking
+
+            // Oppdater synlighet av kolonneoverskrifter
+            let headers = thead.getElementsByTagName("th");
+            headers[1].style.display = filterTrumf ? "" : "none";
+            headers[2].style.display = filterSAS ? "" : "none";
+            headers[3].style.display = filterStudentkortet ? "" : "none";
+            headers[4].style.display = filterStudenttorget ? "" : "none";
+            headers[5].style.display = filterZupergift ? "" : "none";
+
+            combinedData.forEach(row => {
+                let values = Object.values(row).join(" ").toLowerCase();
+                let hasVisibleValue = 
+                (filterTrumf && (row['Trumf Netthandel'] ?? '') !== '') ||
+                (filterSAS && (row['Sas Netthandel'] ?? '') !== '') ||
+                (filterStudentkortet && (row['Studentkortet'] ?? '') !== '') ||
+                (filterStudenttorget && (row['Studenttorget'] ?? '') !== '') ||
+                (filterZupergift && (row['Zupergift'] ?? '') !== '');
+
+
+                let shouldDisplay = values.includes(input) && hasVisibleValue;
+
+                if (shouldDisplay) {
+                    let newRow = tbody.insertRow();
+                    let cell1 = newRow.insertCell(0);
+                    let cell2 = newRow.insertCell(1);
+                    let cell3 = newRow.insertCell(2);
+                    let cell4 = newRow.insertCell(3);
+                    let cell5 = newRow.insertCell(4);
+                    let cell6 = newRow.insertCell(5);
+
+                    cell1.innerHTML = row['Butikk'];
+                    cell2.innerHTML = row['Trumf Netthandel'];
+                    cell3.innerHTML = row['Sas Netthandel'];
+                    cell4.innerHTML = row['Studentkortet'];
+                    cell5.innerHTML = row['Studenttorget'];
+                    cell6.innerHTML = row['Zupergift'];
+
+                    // Skjul kolonner basert på valgte filtre
+                    cell2.style.display = filterTrumf ? "" : "none";
+                    cell3.style.display = filterSAS ? "" : "none";
+                    cell4.style.display = filterStudentkortet ? "" : "none";
+                    cell5.style.display = filterStudenttorget ? "" : "none";
+                    cell6.style.display = filterZupergift ? "" : "none";
+                }
+            });
+        }
+
+        // Funksjon for å laste ned tabellen som CSV-fil
+        function downloadCSV() {
+            var table = document.getElementById("csvTable");
+            var rows = Array.from(table.querySelectorAll("tr"));
+            var csvContent = rows.map(function(row) {
+                return Array.from(row.querySelectorAll("th, td")).map(function(cell) {
+                    return cell.textContent;
+                }).join(",");
+            }).join("\n");
+
+            var blob = new Blob([csvContent], { type: 'text/csv' });
+            var link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'table_data.csv';
+            link.click();
+        }
+
+        function filterTable() {
+            let filterTrumf = document.getElementById("filterTrumf").checked;
+            let filterSAS = document.getElementById("filterSAS").checked;
+            let filterStudentkortet = document.getElementById("filterStudentkortet").checked;
+            let filterStudenttorget = document.getElementById("filterStudenttorget").checked;
+            let filterZupergift = document.getElementById("filterZupergift").checked;
+
+            let table = document.getElementById("csvTable");
+            let tbody = table.getElementsByTagName("tbody")[0];
+            let thead = table.getElementsByTagName("thead")[0];
+            tbody.innerHTML = ""; // Tøm tabellen før oppdatering
+
+            // Oppdater synlighet av kolonneoverskrifter
+            let headers = thead.getElementsByTagName("th");
+            headers[1].style.display = filterTrumf ? "" : "none";
+            headers[2].style.display = filterSAS ? "" : "none";
+            headers[3].style.display = filterStudentkortet ? "" : "none";
+            headers[4].style.display = filterStudenttorget ? "" : "none";
+            headers[5].style.display = filterZupergift ? "" : "none";
+
+            // Skjul hele thead hvis ingen kolonner er valgt
+            let anyColumnVisible = filterTrumf || filterSAS || filterStudentkortet || filterStudenttorget || filterZupergift;
+            thead.style.display = anyColumnVisible ? "" : "none";
+
+
+            combinedData.forEach(row => {
+                let shouldDisplay = (
+                    (filterTrumf && row['Trumf Netthandel']) ||
+                    (filterSAS && row['Sas Netthandel']) ||
+                    (filterStudentkortet && row['Studentkortet']) ||
+                    (filterStudenttorget && row['Studenttorget']) ||
+                    (filterZupergift && row['Zupergift'])
+                );
+
+                if (shouldDisplay) {
+                    let newRow = tbody.insertRow();
+                    let cell1 = newRow.insertCell(0);
+                    let cell2 = newRow.insertCell(1);
+                    let cell3 = newRow.insertCell(2);
+                    let cell4 = newRow.insertCell(3);
+                    let cell5 = newRow.insertCell(4);
+                    let cell6 = newRow.insertCell(5);
+
+                    cell1.innerHTML = row['Butikk'];
+                    cell2.innerHTML = row['Trumf Netthandel'];
+                    cell3.innerHTML = row['Sas Netthandel'];
+                    cell4.innerHTML = row['Studentkortet'];
+                    cell5.innerHTML = row['Studenttorget'];
+                    cell6.innerHTML = row['Zupergift'];
+
+                    // Skjul kolonner basert på valgte filtre
+                    cell2.style.display = filterTrumf ? "" : "none";
+                    cell3.style.display = filterSAS ? "" : "none";
+                    cell4.style.display = filterStudentkortet ? "" : "none";
+                    cell5.style.display = filterStudenttorget ? "" : "none";
+                    cell6.style.display = filterZupergift ? "" : "none";
+
+                }
+            });
+        }
+
+        function toggleStudentMode() {
+            let isStudentMode = document.getElementById("studentModeSwitch").checked;
+
+            // Oppdater sjekkbokser basert på Student-modus
+            document.getElementById("filterStudentkortet").checked = isStudentMode;
+            document.getElementById("filterStudenttorget").checked = isStudentMode;
+
+            // Skjul eller vis studentdelen av sjekklisten
+            document.getElementById("studentSjekkliste").style.display = isStudentMode ? "" : "none";
+            
+
+            // Oppdater tabellen umiddelbart
+            searchTable();
+        }
+
+        function togglesasMode() {
+            let issasMode = document.getElementById("sasModeSwitch").checked;
+
+            // Oppdater sjekkbokser basert på sas-modus
+            document.getElementById("filterSAS").checked = issasMode;
+            document.getElementById("filterZupergift").checked = issasMode;
+
+            // Skjul eller vis sasdelen av sjekklisten
+            document.getElementById("sasSjekkliste").style.display = issasMode ? "" : "none";
+            
+
+            // Oppdater tabellen umiddelbart
+            searchTable();
+        }
+
+        function toggleDarkMode() {
+            const body = document.body;
+            const darkModeSwitch = document.getElementById("darkModeSwitch");
+
+            if (darkModeSwitch.checked) {
+                body.setAttribute("data-bs-theme", "dark");
+                localStorage.setItem("darkMode", "enabled");
+            } else {
+                body.setAttribute("data-bs-theme", "light");
+                localStorage.setItem("darkMode", "disabled");
+            }
+        }
+
+        // Husk brukerens valg
+        window.onload = function () {
+            if (localStorage.getItem("darkMode") === "enabled") {
+                document.getElementById("darkModeSwitch").checked = true;
+                document.body.setAttribute("data-bs-theme", "dark");
+            }
+        };
+
+        // Funksjon som genererer knappene for bokstavene
+        function generateAlphabetButtons() {
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZÆØÅ'.split('');
+            document.getElementById('alphabet-buttons').innerHTML = alphabet.map(letter =>
+                `<button class="btn btn-outline-primary" onclick="filterByLetter('${letter}')">${letter}</button>`
+            ).join('');
+        }
+
+        // Kall funksjonen for å generere knappene
+        generateAlphabetButtons();
+
+        // Last inn CSV-dataene når siden åpnes
+        loadCSV();
+    </script>
 </body>
 </html>

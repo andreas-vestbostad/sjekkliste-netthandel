@@ -52,8 +52,11 @@ for i, a_tag in enumerate(a_tags):
         div_innhold = driver.find_element(By.XPATH, f'//*[@id="CategoryResults"]/a[{i+1}]/div/div[1]/div').text
         value = float(div_innhold[:-2].replace(",", ".").strip())
         points = round(value * 13.5)
-        div_innhold = div_innhold + f" ({points} poeng per 100kr)"
-
+        if div_innhold[-1] == "%":
+            div_innhold = div_innhold + f" ({points} poeng per 100kr)"
+        else:
+            div_innhold = div_innhold + f" ({points} poeng)"
+        print(div_innhold)
         data.append([data_name, div_innhold, href])
 
     except Exception as e:
